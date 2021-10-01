@@ -1,8 +1,8 @@
 #Protect Scoring
 bsrc.score<-function(df=NULL,formname=NULL,...){
   library(dplyr)
-  possible_forms<-c("athf","ham","cirsg","sidp","exit","drs","wtar","mmse",
-                    "bis","ctq","isel","iip","neo","paibor","spsi","ssd","uppsp")
+  possible_forms<-c("ssi","ssi","athf","ham","cirsg","scid","sidp","exit","drs","wtar","ars","mmse",
+                    "bis","ctq","isel","iip","neo","paibor","pb","spsi","ssd","ta","uppsp", "fs", "let", "swls")
   if(is.null(formname)){
     message("No form name supplied, choose one of these options:")
     print(possible_forms)
@@ -522,6 +522,7 @@ bsrc.score<-function(df=NULL,formname=NULL,...){
       ta_total=ifelse(rowSums(is.na(df[paste0("ta_",1:7)]))==0,
                       rowSums(df[paste0("ta_",1:7)]),NA)
     )
+    return(df)
   }
   
   #UPPSP scoring
@@ -571,3 +572,49 @@ bsrc.score<-function(df=NULL,formname=NULL,...){
       )
     return(df)
   }
+
+  #FS scoring
+  score.fs <- function(df=NULL){
+    df <- df %>% mutate_at(vars(paste0("fs_",c(1:8))),as.numeric)%>% 
+      mutate(
+        fs_total= ifelse(rowSums(is.na(df[paste0("fs_",c(1:8))]))==0,
+                         rowSums(df[paste0("fs_",c(1:8))]), NA)
+    )
+    return(df)
+  }
+  
+  #LET scoring
+  score.let <- function(df=NULL){
+    df <- df %>% mutate_at(vars(paste0("let_",c(1:6))),as.numeric)
+    df <- df %>% mutate(let_1=6-let_1, let_3=6-let_3,let_5=6-let_5)
+    
+    df <- df%>% mutate(LET_total= ifelse(rowSums(is.na(df[paste0("let_",c(1:6))]))==0,
+                                         rowSums(df[paste0("let_",c(1:6))]), NA)
+    )
+    return(df)
+  }
+  
+  #SWLS scoring
+  score.swls <- function (df=NULL){
+      df <- df %>% mutate_at(vars(paste0("swls_",c(1:5)),as.numeric)
+      df <- df%>% mutate(swls_total= ifelse(rowSums(is.na(df[paste0("swls_",c(1:5))]))==0,
+                                            rowSums(df[paste0("swls_",c(1:5))]), NA))
+      )
+      return(df)
+    }
+  
+  #MAAS scoring 
+  score.maas <- function(df=NULL){
+    df <- df %>% mutate_at(vars(paste0("maas_",1:15)),as.numeric)
+    
+    df <- df %>% mutate(
+      maas_mean=ifelse(rowSums(is.na(df[paste0("maas_",c(1:15))]))==0,
+                       rowSums(df[paste0("maas_",c(1:15))]),ifelse(
+                         rowSums(is.na(df[paste0("maas_",c(1:15))]))==1,
+                         round(rowSums(df[paste0("maas_",c(1:15))],na.rm=T)*15/14),NA)
+    )
+    return(df)
+  }
+  
+  
+  
